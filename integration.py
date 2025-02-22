@@ -9,6 +9,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from typing import List
 
+app = FastAPI()
+load_dotenv()
 
 DB_CONFIG = {
     "dbname": os.getenv("DB_NAME", "file_monitor"),
@@ -17,8 +19,7 @@ DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": os.getenv("DB_PORT", "5432"),
 }
-app = FastAPI()
-load_dotenv()
+
 
 
 class Setting(BaseModel):

@@ -117,8 +117,8 @@ def send_to_telex(message, TELEX_WEBHOOK_URL):
 
 async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
-    site = [s.default for s in payload.settings if s.label.startswith("site")]
-    logs = await asyncio.run(fetch_logs(site[0]))
+    sites = [s.default for s in payload.settings if s.label.startswith("site")]
+    logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
     send_to_telex(str(logs), payload.return_url)
 
 @app.post("/tick", status_code=202)

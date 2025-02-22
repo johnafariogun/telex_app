@@ -120,6 +120,7 @@ def send_to_telex(message, TELEX_WEBHOOK_URL):
 async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
     sites = [s.default for s in payload.settings if s.label.startswith("site")]
+    print(sites)
     logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
     send_to_telex(logs, payload.return_url)
 

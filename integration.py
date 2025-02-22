@@ -104,6 +104,7 @@ async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
     sites = [s.default for s in payload.settings if s.label.startswith("site")]
     logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
+    print(logs)
 
     data = {
         "message": logs,  # Sending logs as the message

@@ -71,10 +71,10 @@ def get_integration_json(request: Request):
                     "label": "interval",
                     "type": "text",
                     "required": True,
-                    "default": "59 23 * * *"
+                    "default": "* * * * *"
                 },
                 {
-                    "label": "site to get logs for the day from",
+                    "label": "site",
                     "type": "text",
                     "required": True,
                     "default": f"{base_url}/logs"
@@ -90,6 +90,7 @@ def get_integration_json(request: Request):
 async def fetch_logs(site) -> List[dict]:
     """Fetch logs from the /logs endpoint."""
     today_date = datetime.today().strftime("%Y-%m-%d")
+    print(today_date)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{site}/{today_date}", timeout=15)  # Adjust URL if necessary

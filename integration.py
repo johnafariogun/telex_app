@@ -109,19 +109,16 @@ def send_to_telex(message, TELEX_WEBHOOK_URL):
             "status": "success" if message else "error",
             "username": "DELETE LOGGER"
         }
-        print(TELEX_WEBHOOK_URL)
         response = httpx.post(TELEX_WEBHOOK_URL, json=payload)
         response.raise_for_status()
-        print("✅ Telex alert sent!")
     except httpx.HTTPError as e:
-        print(f"❌ Failed to send to Telex: {e}")
+        return str(e)
 
 
 async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
-    sites = [s.default for s in payload.settings if s.label.startswith("site")]
-    print(sites)
-    logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
+    site = [s.default for s in payload.settings if s.label.startswith("site")]
+    logs = await asyncio.run(fetch_logs(site[0]))
     send_to_telex(str(logs), payload.return_url)
 
 @app.post("/send-logs", status_code=202)

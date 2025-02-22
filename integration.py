@@ -90,7 +90,6 @@ def get_integration_json(request: Request):
 async def fetch_logs(site) -> List[dict]:
     """Fetch logs from the /logs endpoint."""
     today_date = datetime.today().strftime("%Y-%m-%d")
-    print(today_date)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{site}/{today_date}", timeout=15)  # Adjust URL if necessary
@@ -104,7 +103,6 @@ async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
     sites = [s.default for s in payload.settings if s.label.startswith("site")]
     logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
-    print(payload.return_url)
 
     data = {
         "message": logs,  # Sending logs as the message
@@ -115,7 +113,11 @@ async def send_logs_task(payload: LogPayload):
 
     async with httpx.AsyncClient() as client:
         try:
-            await client.post(payload.return_url, json=data)
+            response = await client.post(payload.return_url, json=data)
+            if response.status_code < 400:
+                print("sent to telex")
+            else:
+                print("not sent")
         except Exception as e:
             return str(e)
 

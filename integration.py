@@ -109,6 +109,7 @@ def send_to_telex(message, TELEX_WEBHOOK_URL):
             "status": "success" if message else "error",
             "username": "DELETE LOGGER"
         }
+        print(TELEX_WEBHOOK_URL)
         response = httpx.post(TELEX_WEBHOOK_URL, json=payload)
         response.raise_for_status()
         print("✅ Telex alert sent!")

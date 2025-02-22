@@ -71,7 +71,7 @@ def get_integration_json(request: Request):
                     "label": "interval",
                     "type": "text",
                     "required": True,
-                    "default": "* * * * *"
+                    "default": "59 23 * * *"
                 },
                 {
                     "label": "site",
@@ -81,7 +81,7 @@ def get_integration_json(request: Request):
                 }
                 ],
                 "target_url": f"{base_url}",
-                "tick_url": f"{base_url}/send-logs"
+                "tick_url": f"{base_url}/tick"
             }
     }
 
@@ -121,7 +121,7 @@ async def send_logs_task(payload: LogPayload):
     logs = await asyncio.run(fetch_logs(site[0]))
     send_to_telex(str(logs), payload.return_url)
 
-@app.post("/send-logs", status_code=202)
+@app.post("/tick", status_code=202)
 def trigger_log_sending(payload: LogPayload, background_tasks: BackgroundTasks):
     """Triggers the log sending process asynchronously."""
     background_tasks.add_task(send_logs_task, payload)

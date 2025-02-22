@@ -99,27 +99,28 @@ async def fetch_logs(site) -> List[dict]:
     except Exception as e:
         return [{"error": f"Failed to fetch logs: {str(e)}"}]
 
+
+def send_to_telex(message, TELEX_WEBHOOK_URL):
+    """Sends a deletion alert to Telex."""
+    try:
+        payload = {
+            "message": message,
+            "event_name": "❌ DELETE LOGS",
+            "status": "success" if message else "error",
+            "username": "DELETE LOGGER"
+        }
+        response = httpx.post(TELEX_WEBHOOK_URL, json=payload)
+        response.raise_for_status()
+        print("✅ Telex alert sent!")
+    except httpx.HTTPError as e:
+        print(f"❌ Failed to send to Telex: {e}")
+
+
 async def send_logs_task(payload: LogPayload):
     """Fetch logs and send them to the return URL."""
     sites = [s.default for s in payload.settings if s.label.startswith("site")]
     logs = await asyncio.gather(*(fetch_logs(site) for site in sites))
-
-    data = {
-        "message": logs,  # Sending logs as the message
-        "username": "Log Monitor",
-        "event_name": "Log Report",
-        "status": "success" if logs else "error"
-    }
-
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(payload.return_url, json=data)
-            if response.status_code < 400:
-                print("sent to telex")
-            else:
-                print("not sent")
-        except Exception as e:
-            return str(e)
+    send_to_telex(logs, payload.return_url)
 
 @app.post("/send-logs", status_code=202)
 def trigger_log_sending(payload: LogPayload, background_tasks: BackgroundTasks):

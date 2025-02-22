@@ -1,6 +1,7 @@
 import os
 from pydantic import BaseModel
 from fastapi import FastAPI, BackgroundTasks, Request
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import uvicorn
 import psycopg2
@@ -12,6 +13,13 @@ from typing import List
 app = FastAPI()
 load_dotenv()
 
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["GET", "POST"],
+        allow_headers=["*"],
+        allow_credentials=True,
+    )
 DB_CONFIG = {
     "dbname": os.getenv("DB_NAME", "file_monitor"),
     "user": os.getenv("DB_USER", "postgres"),
